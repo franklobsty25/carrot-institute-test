@@ -4,25 +4,32 @@ import {
   Delete,
   Get,
   HttpStatus,
-  Param,
-  Post,
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Response } from 'express';
-import { CreateUserDTO, UpdateUserDTO } from './dto';
+import { FilterUserDTO, RoleDTO, UpdateUserDTO } from './dto';
 import { ResponseService } from 'src/common/helpers/response.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from './decoretors/current-user.decorator';
+import { UserDocument } from './schema/user.schema';
+import {
+  GetUserFromParam,
+  UserParamGuard,
+} from './decoretors/user-param.decorator';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('list')
   async listUsers(@Res() res: Response) {
     try {
-      const { docs, ...metadata } = await this.userService.fetchAllUsers();
+      const { docs, ...metadata } = await this.userService.fetchUsers();
 
       ResponseService.json(
         res,
@@ -36,53 +43,15 @@ export class UserController {
     }
   }
 
-  @Get('search')
-  async search(
-    @Res() res: Response,
-    @Query('search') search: string,
-  ): Promise<void> {
-    try {
-      const { docs, ...metadata } = await this.userService.searchUsers(search);
-
-      ResponseService.json(
-        res,
-        HttpStatus.OK,
-        'Users fetched successfully',
-        docs,
-        metadata,
-      );
-    } catch (error) {
-      ResponseService.json(res, error);
-    }
-  }
-
-  @Post('create')
-  async create(
-    @Res() res: Response,
-    @Body() userDTO: CreateUserDTO,
-  ): Promise<void> {
-    try {
-      const user = await this.userService.createUser(userDTO);
-
-      ResponseService.json(
-        res,
-        HttpStatus.OK,
-        'User information created successfully',
-        user,
-      );
-    } catch (error) {
-      ResponseService.json(res, error);
-    }
-  }
-
-  @Put(':userId/edit')
+  @UseGuards(JwtAuthGuard)
+  @Put('edit')
   async update(
     @Res() res: Response,
-    @Param('userId') userId: string,
+    @CurrentUser() user: UserDocument,
     @Body() updateDTO: UpdateUserDTO,
   ): Promise<void> {
     try {
-      const updatedUser = await this.userService.updateUser(userId, updateDTO);
+      const updatedUser = await this.userService.updateUser(user.id, updateDTO);
 
       ResponseService.json(
         res,
@@ -95,13 +64,36 @@ export class UserController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Put('switch/role')
+  async becomeASellerOrBuyer(
+    @Res() res: Response,
+    @CurrentUser() user: UserDocument,
+    @Body() payload: RoleDTO,
+  ): Promise<void> {
+    try {
+      const newRole = await this.userService.sellerOrBuyer(user, payload.role);
+
+      ResponseService.json(
+        res,
+        HttpStatus.OK,
+        'User role changed successfully',
+        newRole,
+      );
+    } catch (error) {
+      ResponseService.json(res, error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @UserParamGuard()
   @Delete(':userId/delete')
   async delete(
     @Res() res: Response,
-    @Param('userId') userId: string,
+    @GetUserFromParam() user: UserDocument,
   ): Promise<void> {
     try {
-      const deletedUser = await this.userService.deleteUser(userId);
+      const deletedUser = await this.userService.softDeleteUser(user.id);
 
       ResponseService.json(
         res,

@@ -5,13 +5,19 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './common/config/configuration';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './modules/auth/auth.module';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import * as mongoosePopulate from 'mongoose-autopopulate';
 import * as mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
+import { MenuModule } from './modules/menu/menu.module';
+import { RestaurantModule } from './modules/restaurant/restaurant.module';
+import { TableModule } from './modules/table/table.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
     UserModule,
+    MenuModule,
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
     MongooseModule.forRoot(configuration().database.url, {
       connectionFactory: (connection) => {
@@ -22,6 +28,10 @@ import * as mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
         return connection;
       },
     }),
+    AuthModule,
+    RestaurantModule,
+    TableModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

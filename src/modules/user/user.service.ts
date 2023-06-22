@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserDocument } from './schema/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { USER } from 'src/common/constants/schemas';
 import { FilterQuery, PaginateModel, PaginateResult } from 'mongoose';
-import { CreateUserDTO, UpdateUserDTO } from './dto';
+import { FilterUserDTO, RoleDTO, UpdateUserDTO } from './dto';
 import { HelperService } from 'src/common/helpers/helper.service';
 import { isEmpty } from 'lodash';
 
@@ -13,15 +13,12 @@ export class UserService {
     @InjectModel(USER) private readonly userModel: PaginateModel<UserDocument>,
   ) {}
 
-  async fetchAllUsers(): Promise<PaginateResult<UserDocument>> {
-    return await this.userModel.paginate(
-      { softDelete: false },
-      { sort: { firstName: -1 } },
-    );
-  }
+  async fetchUsers(
+    payload?: FilterUserDTO,
+  ): Promise<PaginateResult<UserDocument>> {
+    const { page = 1, limit = 10, search } = payload;
 
-  async searchUsers(search?: string) {
-    let query: FilterQuery<UserDocument> = { softDelete: false };
+    const query: FilterQuery<UserDocument> = { softDelete: false };
 
     if (search) {
       query.$or = [
@@ -31,42 +28,62 @@ export class UserService {
       ];
     }
 
-    return await this.userModel.paginate(query, { sort: { firstName: -1 } });
+    return await this.userModel.paginate(query, {
+      page,
+      limit,
+      sort: { firstName: -1 },
+      populate: [{ path: 'menu' }],
+    });
   }
 
-  async createUser(userDTO: CreateUserDTO) {
-    const { password } = userDTO;
-
-    userDTO.password = await HelperService.hash(password);
-
-    const UserDocument = await this.userModel.create(userDTO);
-
-    return UserDocument;
+  async authenticateUser(userId: string) {
+    return this.userModel
+      .findOne({ _id: userId, softDelete: false })
+      .select('+password');
   }
 
-  async updateUser(userId: string, updateUserDTO: UpdateUserDTO) {
+  async updateUser(
+    userId: string,
+    updateUserDTO: UpdateUserDTO,
+  ): Promise<UserDocument> {
     const { password } = updateUserDTO;
 
     if (!isEmpty(password)) {
       updateUserDTO.password = await HelperService.hash(password);
     }
 
-    const updatedUser = await this.userModel.findOneAndUpdate(
-      { _id: userId, softDelete: false },
-      { $set: updateUserDTO },
-      { new: true, upsert: true },
-    );
+    const user = await this.userModel
+      .findOneAndUpdate(
+        { _id: userId, softDelete: false },
+        { $set: updateUserDTO },
+        { new: true },
+      )
+      .select('-password');
 
-    return updatedUser;
+    if (!user)
+      throw new NotFoundException(`User with ${userId} does not exist`);
+
+    return user;
   }
 
-  async deleteUser(userId: string) {
+  async softDeleteUser(userId: string): Promise<UserDocument> {
     const user = await this.userModel.findOneAndUpdate(
       { _id: userId, softDelete: false },
       { $set: { softDelete: true } },
       { new: true },
     );
 
+    if (!user)
+      throw new NotFoundException(`User with ${userId} does not exist`);
+
     return user;
+  }
+
+  async sellerOrBuyer(user: UserDocument, role: string) {
+    return await this.userModel.findByIdAndUpdate(
+      user.id,
+      { $set: { role } },
+      { new: true },
+    );
   }
 }

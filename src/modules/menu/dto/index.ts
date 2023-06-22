@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
-export class MenuDTO {
+export class CreateMenuDTO {
     @IsNotEmpty()
     @IsString()
     name: string;
@@ -8,6 +8,10 @@ export class MenuDTO {
     @IsOptional()
     @IsString()
     category?: string;
+
+    @IsOptional()
+    @IsString()
+    ingredients?: string;
 
     @IsNumber()
     price: number;
@@ -22,12 +26,16 @@ export class MenuDTO {
 
 }
 
-export class UpdateMenuDTO {
+export class UpdateMenuDTO{
     @IsOptional()
     name?: string;
 
     @IsOptional()
     category?: string;
+
+    @IsOptional()
+    @IsString()
+    ingredients?: string;
 
     @IsOptional()
     price?: number;
@@ -37,4 +45,18 @@ export class UpdateMenuDTO {
 
     @IsOptional()
     imageUrl?: string;
+}
+
+export class FilterMenuDTO {
+    @IsOptional()
+    @IsNumber()
+    page?: number;
+
+    @IsOptional()
+    @IsNumber()
+    limit?: number;
+
+    @IsOptional()
+    @IsString()
+    search?: string;
 }

@@ -24,6 +24,24 @@
 
 ## Description
 
+## Local Installation
+
+```
+$ git clone https://github.com/franklobsty25/carrot-institute-test
+
+$ cd ~/path/carrot-institute-test
+
+$ npm install
+
+$ npm run start
+
+NB: Create a .env file from env-example and environment variables for the project to work properly.
+
+Swagger docs after starting the project is at base url /api/docs
+
+
+```
+
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
 ## Installation

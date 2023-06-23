@@ -29,6 +29,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { RoleGuard } from '../auth/guards/role.guard';
 
 @ApiTags('User')
 @ApiBearerAuth('defaultBearerAuth')
@@ -87,7 +88,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Switch user role' })
   @ApiOkResponse({ description: 'User role switched' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Put('switch/role')
   async becomeASellerOrBuyer(
     @Res() res: Response,

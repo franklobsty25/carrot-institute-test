@@ -16,7 +16,10 @@ export class Table {
   @Prop({ type: SchemaTypes.Number, required: false })
   chairs?: number;
 
-  // Table belongs to a restaurant
+  @Prop({ type: SchemaTypes.Boolean, required: false, default: false })
+  softDelete: boolean;
+
+  // Table belong to a restaurant
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: RESTAURANT })
   restaurant: RestaurantDocument | string;
 }

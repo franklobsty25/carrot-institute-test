@@ -37,11 +37,11 @@ export class Restaurant {
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: USER })
   user: UserDocument;
 
-  // Menus belongs to a restaurant
+  // Menus belong to a restaurant
   @Prop({ type: [{ type: mongoose.SchemaTypes.ObjectId, ref: MENU }] })
   menus: MenuDocument[];
 
-  // Tables belongs to a restaurant
+  // Tables belong to a restaurant
   @Prop({ type: [{ type: mongoose.SchemaTypes.ObjectId, ref: TABLE }] })
   tables: TableDocument[];
 }

@@ -43,7 +43,7 @@ export class RestaurantService {
     });
   }
 
-  async getSingleResaurant(restaurantId: string) {
+  async getResaurant(restaurantId: string) {
     const restaurantDocument = await this.restaurantModel.findOne({
       _id: restaurantId,
       softDelete: false,
@@ -61,6 +61,9 @@ export class RestaurantService {
     user: UserDocument,
     createRestaurantDTO: CreateRestaurantDTO,
   ): Promise<RestaurantDocument> {
+    const { companyEmail } = createRestaurantDTO;
+
+    createRestaurantDTO.companyEmail = companyEmail.toLowerCase();
     const restaurant = await this.restaurantModel.create(createRestaurantDTO);
     user.restaurant = restaurant;
 

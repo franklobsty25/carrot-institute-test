@@ -15,9 +15,10 @@ export class RestaurantPutToRequestGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const { params } = request;
     
-    const restaurant: RestaurantDocument = await this.restaurantModel.findById(
-      params.restaurantId,
-    );
+    const restaurant: RestaurantDocument = await this.restaurantModel.findOne({
+      _id: params.restaurantId,
+      softDelete: false
+      });
 
     request.__restaurant = restaurant;
 

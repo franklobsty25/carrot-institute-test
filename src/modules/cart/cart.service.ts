@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, PaginateModel, PaginateResult } from 'mongoose';
 import { CART } from 'src/common/constants/schemas';
 import { CartDocument } from './schema/cart.schema';
-import { FilterCartDTO } from './dto';
+import { CheckoutDTO, FilterCartDTO } from './dto';
 import { UserDocument } from '../user/schema/user.schema';
 import { MenuDocument } from '../menu/schema/menu.schema';
 import * as moment from 'moment';
@@ -44,10 +44,21 @@ export class CartService {
   }
 
   async getCartById(cartId: string): Promise<CartDocument> {
-    return await this.cartModel.findById(cartId);
+    return await this.cartModel.findOne({ _id: cartId, softDelete: false });
   }
 
-  async checkoutCart(user: UserDocument, carts: CartDocument[]): Promise<void> {
+  async checkoutCart(
+    user: UserDocument,
+    cartIds: CheckoutDTO[],
+  ): Promise<any> {
+    const carts = await Promise.all(
+      cartIds.map(async ({ cart }) => {
+        return await this.cartModel
+          .findOne({ _id: cart, softDelete: false })
+          .populate(['user', 'menu']);
+      }),
+    );
+
     const totalPrice = carts.reduce(
       (acc, cart) => acc + cart.menu.price * cart.quantity,
       0,
@@ -60,17 +71,20 @@ export class CartService {
 
     const response = await this.orderService.initializePayment(payload);
 
-    const verify = await this.orderService.verifyPayment(response?.data?.reference);
+    const verify = await this.orderService.verifyPayment(
+      response?.data?.reference,
+    );
 
     if (!verify.status) throw new BadRequestException('Payment failed!');
 
     await Promise.all(
       carts.map(async (cart) => {
         await this.orderService.placeOrder(user, cart.menu, cart.quantity);
+        await this.cartModel.findByIdAndDelete(cart.id);
       }),
     );
 
-    return verify.status;
+    return { message: verify?.message };
   }
 
   async addToCart(

@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { CartService } from '../cart.service';
 import { CartDocument } from '../schema/cart.schema';
 
@@ -14,6 +19,11 @@ export class AccessGuard implements CanActivate {
       params.cartId,
     );
 
-    return user.id == cart.user;
+    const isUserCart = user.id.toString() == cart.user.toString();
+
+    if (!isUserCart)
+      throw new ForbiddenException('Cart does not belong to user');
+
+    return isUserCart;
   }
 }

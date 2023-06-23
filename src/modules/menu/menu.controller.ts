@@ -23,14 +23,28 @@ import {
 } from './decorator/menu-access-param.decorator';
 import { MenuDocument } from './schema/menu.schema';
 import { RoleGuard } from '../auth/guards/role.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiParam,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Menu')
 @ApiBearerAuth('defaultBearerAuth')
+@ApiUnauthorizedResponse({ description: 'Unauthorized access' })
 @Controller('menus')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
+  @ApiOperation({ summary: 'Fetch menu records with pagination' })
+  @ApiOkResponse({ description: 'Menus lists' })
   @Get('list')
   async fetch(
     @Res() res: Response,
@@ -51,6 +65,14 @@ export class MenuController {
     }
   }
 
+  @ApiParam({
+    name: 'menuId',
+    description: 'Menu ID to fetch',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Fetch menu record' })
+  @ApiOkResponse({ description: 'Menu found' })
+  @ApiNotFoundResponse({ description: 'Menu record not found' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @MenuAccessGuard()
   @Get(':menuId')
@@ -70,6 +92,9 @@ export class MenuController {
     }
   }
 
+  @ApiOperation({ summary: 'Create menu record' })
+  @ApiCreatedResponse({ description: 'Menu created' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('create')
   async create(
@@ -91,6 +116,16 @@ export class MenuController {
     }
   }
 
+  @ApiParam({
+    name: 'menuId',
+    description: 'Menu ID to edit',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Update menu record' })
+  @ApiOkResponse({ description: 'Menu updated successfully' })
+  @ApiForbiddenResponse({ description: 'Forbidden resource' })
+  @ApiNotFoundResponse({ description: 'Menu record not found' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @MenuAccessGuard()
   @Put(':menuId/edit')
@@ -116,6 +151,15 @@ export class MenuController {
     }
   }
 
+  @ApiParam({
+    name: 'menuId',
+    description: 'Menu ID to delete',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Delete menu record softly' })
+  @ApiOkResponse({ description: 'Menu deleted softly' })
+  @ApiForbiddenResponse({ description: 'Forbidden resource' })
+  @ApiNotFoundResponse({ description: 'Menu record not found' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @MenuAccessGuard()
   @Delete(':menuId/delete')

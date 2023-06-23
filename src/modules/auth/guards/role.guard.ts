@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { RoleEnum } from 'src/common/constants/schemas';
 
 @Injectable()
@@ -7,6 +12,12 @@ export class RoleGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const { user } = request;
 
-    return user.role === RoleEnum.Seller || user.role === RoleEnum.Admin;
+    const isSellOrAdmin =
+      user.role === RoleEnum.Seller || user.role === RoleEnum.Admin;
+
+    if (!isSellOrAdmin)
+      throw new ForbiddenException('User not a seller or administrator');
+
+    return isSellOrAdmin;
   }
 }

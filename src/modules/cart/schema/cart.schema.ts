@@ -19,11 +19,14 @@ export class Cart {
   })
   expires: Date;
 
-  // Carts belongs to user
+  @Prop({type: SchemaTypes.Boolean, required: false, default: false})
+  softDelete: boolean;
+
+  // Carts belong to user
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: USER })
   user: UserDocument;
 
-  // Cart belongs to menu
+  // Cart belong to menu
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: MENU })
   menu: MenuDocument;
 }

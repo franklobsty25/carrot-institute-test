@@ -1,9 +1,9 @@
 import {
-  BadRequestException,
   Controller,
   Get,
   HttpStatus,
   Post,
+  Req,
   Res,
   UploadedFile,
   UseGuards,
@@ -11,11 +11,19 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ResponseService } from './common/helpers/response.service';
-import { Response, Express } from 'express';
+import { Response, Express, Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { FileUploadDTO } from './modules/auth/dto';
 
@@ -23,17 +31,22 @@ import { FileUploadDTO } from './modules/auth/dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @ApiTags('')
+  @ApiOperation({ summary: 'Base url' })
+  @ApiOkResponse({description: 'api base url'})
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  index(@Req() req: Request, @Res() res: Response) {
+    const url = this.appService.getUrl(req);
+    res.send(url);
   }
 
   @ApiTags('Upload')
+  @ApiOperation({ summary: 'Image upload' })
   @ApiBearerAuth('defaultBearerAuth')
-  @ApiOkResponse({description: 'Uploaded successfully'})
-  @ApiUnauthorizedResponse({description: 'Unauthorized access'})
+  @ApiOkResponse({ description: 'Uploaded successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized access' })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({type: FileUploadDTO, description: 'File upload'})
+  @ApiBody({ type: FileUploadDTO, description: 'File upload' })
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(

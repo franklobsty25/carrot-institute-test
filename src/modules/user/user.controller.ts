@@ -22,8 +22,10 @@ import {
 } from './decoretors/user-param.decorator';
 import {
   ApiBearerAuth,
+  ApiNotFoundResponse,
   ApiOkResponse,
-  ApiQuery,
+  ApiOperation,
+  ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -35,7 +37,8 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOkResponse({ description: 'User records found' })
+  @ApiOperation({ summary: 'Fetch user records with pagination' })
+  @ApiOkResponse({ description: 'User lists' })
   @UseGuards(JwtAuthGuard)
   @Get('list')
   async listUsers(@Res() res: Response, @Query() filter: FilterUserDTO) {
@@ -54,7 +57,10 @@ export class UserController {
     }
   }
 
-  @ApiOkResponse({ description: 'User record edit' })
+  @ApiOperation({
+    summary: 'Update user record',
+  })
+  @ApiOkResponse({ description: 'User updated' })
   @UseGuards(JwtAuthGuard)
   @Put('edit')
   async update(
@@ -79,6 +85,7 @@ export class UserController {
     }
   }
 
+  @ApiOperation({ summary: 'Switch user role' })
   @ApiOkResponse({ description: 'User role switched' })
   @UseGuards(JwtAuthGuard)
   @Put('switch/role')
@@ -101,7 +108,14 @@ export class UserController {
     }
   }
 
-  @ApiOkResponse({ description: 'User record deleted' })
+  @ApiParam({
+    name: 'userId',
+    description: 'User ID to delete',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Delete user record softly' })
+  @ApiOkResponse({ description: 'User deleted softly' })
+  @ApiNotFoundResponse({ description: 'User record not found' })
   @UseGuards(JwtAuthGuard)
   @UserParamGuard()
   @Delete(':userId/delete')

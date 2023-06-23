@@ -14,8 +14,11 @@ export class TablePutToRequestGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const { params } = request;
 
-    const table: TableDocument = await this.tabelModel.findOne(params.tableId);
-
+    const table: TableDocument = await this.tabelModel.findOne({
+      _id: params.tableId,
+      softDelete: false,
+    });
+    
     request.__table = table;
 
     return true;

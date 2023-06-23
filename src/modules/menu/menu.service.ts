@@ -46,7 +46,7 @@ export class MenuService {
     menuDTO: CreateMenuDTO,
   ): Promise<MenuDocument> {
     const [menu, restaurant] = await Promise.all([
-      this.menuModel.create(menuDTO),
+      this.menuModel.create({ ...menuDTO, restaurant: user.restaurant }),
       this.restaurantModel.findById(user.restaurant),
     ]);
 
@@ -82,5 +82,4 @@ export class MenuService {
       { new: true },
     );
   }
-
 }

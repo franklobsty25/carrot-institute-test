@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Express } from 'express';
+import { Request } from 'express';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  getUrl(req: Request): string {
+    return `Food delivery platform api baseurl: ${req.protocol}://${req.get('host')}`;
   }
 
   getFileName(file: Express.Multer.File) {

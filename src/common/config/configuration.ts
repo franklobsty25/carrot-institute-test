@@ -8,7 +8,7 @@ export interface Configuration {
   port: number;
   database: { url: string };
   jwt: { secret: string; expiresIn: string | number };
-  paystack: { publicKey: string };
+  paystack: { secretKey: string; publicKey: string };
   swagger: { token: string };
   isDev(): boolean;
   isProd(): boolean;
@@ -19,7 +19,10 @@ export default (): Configuration => ({
   port: parseInt(process.env.PORT),
   database: { url: process.env.DATABASE_URL },
   jwt: { secret: process.env.JWT_SECRET, expiresIn: process.env.EXPIRES_IN },
-  paystack: { publicKey: process.env.PAYSTACK_PUBLIC_KEY },
+  paystack: {
+    secretKey: process.env.PAYSTACK_SECRET_KEY,
+    publicKey: process.env.PAYSTACK_PUBLIC_KEY,
+  },
   swagger: { token: process.env.SWAGGER_TOKEN },
   isDev(): boolean {
     return process.env.NODE_EN === 'development';

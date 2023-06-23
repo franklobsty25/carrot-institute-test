@@ -24,14 +24,29 @@ import { TableDocument } from './schema/table.schema';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { CurrentUser } from '../user/decoretors/current-user.decorator';
 import { UserDocument } from '../user/schema/user.schema';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiParam,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+  ApiBadRequestResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Table')
 @ApiBearerAuth('defaultBearerAuth')
+@ApiUnauthorizedResponse({ description: 'Unauthorized access' })
+@ApiForbiddenResponse({ description: 'Forbidden resource' })
 @Controller('tables')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
+  @ApiOperation({ summary: 'Fetch table records with pagination' })
+  @ApiOkResponse({ description: 'Table lists' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('list')
   async fetch(
@@ -55,6 +70,14 @@ export class TableController {
     }
   }
 
+  @ApiParam({
+    name: 'tableId',
+    description: 'Table ID to fetch',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Fetch table record' })
+  @ApiOkResponse({ description: 'Table found' })
+  @ApiNotFoundResponse({ description: 'Table record not found' })
   @TableParamGuard()
   @Get(':tableId')
   async getTable(
@@ -73,6 +96,8 @@ export class TableController {
     }
   }
 
+  @ApiOperation({ summary: 'Create table record' })
+  @ApiCreatedResponse({ description: 'Table created' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('create')
   async create(
@@ -96,6 +121,15 @@ export class TableController {
     }
   }
 
+  @ApiParam({
+    name: 'tableId',
+    description: 'Table ID to edit',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Update table record' })
+  @ApiOkResponse({ description: 'Table updated' })
+  @ApiNotFoundResponse({ description: 'User record not found' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @TableAccessGuard()
   @Put(':tableId/edit')
   async update(
@@ -120,6 +154,14 @@ export class TableController {
     }
   }
 
+  @ApiParam({
+    name: 'tableId',
+    description: 'Table ID to delete',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Delete table record softly' })
+  @ApiOkResponse({ description: 'Table deleted softly' })
+  @ApiNotFoundResponse({ description: 'Table record not found' })
   @TableAccessGuard()
   @Delete(':tableId/delete')
   async delete(

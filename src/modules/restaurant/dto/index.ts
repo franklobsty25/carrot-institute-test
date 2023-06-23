@@ -2,65 +2,65 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateRestaurantDTO {
-  @ApiProperty()
+  @ApiProperty({ example: 'Carrot Institute' })
   @IsNotEmpty()
   @IsString()
   companyName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'hr@carrotinstitute.com' })
   @IsOptional()
   @IsEmail()
-  companyEmail?: string;
+  companyEmail: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, example: 'Junction, Akweteyman, Accra' })
   @IsOptional()
   address?: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '0541952025' })
   @IsNotEmpty()
   @IsString()
   phoneNumber: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, example: 100 })
   @IsOptional()
   staffs?: number;
 }
 
 export class UpdateRestaurantDTO {
-  @ApiProperty()
+  @ApiProperty({ required: false, example: 'Carrot Institute | Accra' })
   @IsOptional()
   @IsString()
   companyName?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, example: 'ceo@carrotinstitute.com' })
   @IsOptional()
   @IsEmail()
   companyEmail?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, example: 'Akweteyman, Accra' })
   @IsOptional()
   address?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, example: '0541952520' })
   @IsOptional()
   @IsString()
   phoneNumber?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, example: 50 })
   @IsOptional()
   staffs?: number;
 }
 
 export class FilterRestaurantDTO {
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Optional' })
   @IsOptional()
   page?: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Optional' })
   @IsOptional()
   limit?: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Optional' })
   @IsOptional()
   search?: string;
 }

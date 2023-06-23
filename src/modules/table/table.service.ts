@@ -5,7 +5,6 @@ import { RESTAURANT, TABLE } from 'src/common/constants/schemas';
 import { TableDocument } from './schema/table.schema';
 import { CreateTableDTO, FilterTableDTO, UpdateTableDTO } from './dto';
 import { UserDocument } from '../user/schema/user.schema';
-import { RestaurantService } from '../restaurant/restaurant.service';
 import { RestaurantDocument } from '../restaurant/schema/restaurant.schema';
 
 @Injectable()
@@ -46,9 +45,12 @@ export class TableService {
   ): Promise<TableDocument> {
     const [restaurant, table] = await Promise.all([
       this.restaurantModel.findById(user.restaurant),
-      this.tableModel.create(createTableDTO),
+      this.tableModel.create({
+        ...createTableDTO,
+        restaurant: user.restaurant,
+      }),
     ]);
-    
+
     restaurant.tables.push(table);
 
     await restaurant.save();

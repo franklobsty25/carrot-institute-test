@@ -37,7 +37,7 @@ export class Menu {
   @Prop({ type: SchemaTypes.Boolean, required: true, default: false })
   softDelete: boolean;
 
-  // A menu belongs to a restaurant
+  // A menu belong to a restaurant
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: RESTAURANT })
   restaurant: RestaurantDocument;
 }

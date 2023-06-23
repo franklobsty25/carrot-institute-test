@@ -11,17 +11,21 @@ export class Order {
   @Prop({ type: SchemaTypes.Number, required: false, default: 1 })
   quantity?: number;
 
-  @Prop({ type: SchemaTypes.String, required: false, default: OrderEnum.Pending })
+  @Prop({
+    type: SchemaTypes.String,
+    required: false,
+    default: OrderEnum.Pending,
+  })
   status: string;
 
   @Prop({ type: SchemaTypes.Boolean, required: false, default: false })
   softDelete: boolean;
 
-  // Order belongs to user
+  // Order belong to user
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: USER })
   user: UserDocument;
 
-  // Order belongs to menu
+  // Order belong to menu
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: MENU })
   menu: MenuDocument;
 }

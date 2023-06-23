@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { RoleEnum } from 'src/common/constants/schemas';
 import { OrderService } from '../order.service';
 
@@ -12,6 +17,12 @@ export class OrderCompleteGuard implements CanActivate {
 
     const order = await this.orderService.getOrderById(__order);
 
-    return user.role == RoleEnum.Buyer && user.id == order.user;
+    const isBuyer =
+      user.role == RoleEnum.Buyer &&
+      user.id.toString() == order.user.toString();
+
+    if (!isBuyer) throw new ForbiddenException('Order does not belong to user');
+
+    return isBuyer;
   }
 }

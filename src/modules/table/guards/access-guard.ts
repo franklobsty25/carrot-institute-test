@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { TABLE } from 'src/common/constants/schemas';
 import { Model } from 'mongoose';
@@ -16,6 +21,11 @@ export class AccessGuard implements CanActivate {
 
     const table: TableDocument = await this.tabelModel.findOne(params.tableId);
 
-    return user.restaurant == table.restaurant;
+    const isUserTable = user.restaurant == table.restaurant;
+
+    if (!isUserTable)
+      throw new ForbiddenException('Table does not belong to user');
+
+    return isUserTable;
   }
 }

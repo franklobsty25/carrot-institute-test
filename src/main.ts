@@ -15,7 +15,7 @@ async function bootstrap() {
   const port = configureService.get('PORT');
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Food Delivery Platform')
+    .setTitle('Food Delivery Platform API')
     .setDescription('API for Food Delivery Platform')
     .setVersion('1.0')
     .addBearerAuth(undefined, 'defaultBearerAuth')
@@ -24,6 +24,8 @@ async function bootstrap() {
 
   const options = {
     swaggerOptions: {
+      tagsSorter: 'alpha',
+      sortSchemas: 'alpha',
       authAction: {
         defaultBearerAuth: {
           name: 'defaultBearerAuth',

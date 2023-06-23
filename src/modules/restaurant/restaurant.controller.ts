@@ -28,14 +28,27 @@ import {
 } from './decorators/restaurant-param.decorator';
 import { RestaurantDocument } from './schema/restaurant.schema';
 import { RoleGuard } from '../auth/guards/role.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Restaurant')
 @ApiBearerAuth('defaultBearerAuth')
+@ApiUnauthorizedResponse({ description: 'Unauthorized access' })
+@ApiForbiddenResponse({ description: 'Forbidden resource' })
 @Controller('restaurants')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
+  @ApiOperation({ summary: 'Fetch restaurant records with pagination' })
+  @ApiOkResponse({ description: 'Restaurant lists' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('list')
   async fetch(
@@ -58,6 +71,13 @@ export class RestaurantController {
     }
   }
 
+  @ApiParam({
+    name: 'restaurantId',
+    description: 'Restaurant ID to fetch',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Fetch restaurant record' })
+  @ApiOkResponse({ description: 'Restaurant found' })
   @RestaurantParamGuard()
   @Get(':restaurantId')
   async getRestaurant(
@@ -76,6 +96,8 @@ export class RestaurantController {
     }
   }
 
+  @ApiOperation({ summary: 'Create restaurant record' })
+  @ApiCreatedResponse({ description: 'Restaurant created' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('create')
   async create(
@@ -100,6 +122,13 @@ export class RestaurantController {
     }
   }
 
+  @ApiParam({
+    name: 'restaurantId',
+    description: 'Restaurant ID to edit',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Update restaurant record' })
+  @ApiOkResponse({ description: 'Restaurant updated' })
   @RestaurantAccessGuard()
   @Put(':restaurantId/edit')
   async update(
@@ -124,6 +153,13 @@ export class RestaurantController {
     }
   }
 
+  @ApiParam({
+    name: 'restaurantId',
+    description: 'Restaurant ID to delete',
+    example: '649578f843317759a6add00e',
+  })
+  @ApiOperation({ summary: 'Delete restaurant softly' })
+  @ApiOkResponse({ description: 'Restaurant deleted softly' })
   @RestaurantAccessGuard()
   @Delete(':restaurantId/delete')
   async delete(

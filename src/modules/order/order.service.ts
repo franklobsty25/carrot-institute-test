@@ -8,6 +8,7 @@ import { MenuDocument } from '../menu/schema/menu.schema';
 import { FilterOrderDTO } from './dto';
 import configuration from 'src/common/config/configuration';
 import { PaymentDTO } from '../cart/dto';
+import fetch from 'node-fetch';
 
 @Injectable()
 export class OrderService {
@@ -41,7 +42,7 @@ export class OrderService {
   }
 
   async getOrderById(orderId: string): Promise<OrderDocument> {
-    return await this.orderModel.findById(orderId);
+    return await this.orderModel.findOne({ _id: orderId, softDelete: false });
   }
 
   async placeOrder(
@@ -81,7 +82,7 @@ export class OrderService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${configuration().paystack.publicKey}`,
+        Authorization: `Bearer ${configuration().paystack.secretKey}`,
       },
       body: JSON.stringify({
         email: payload.email,
@@ -102,7 +103,7 @@ export class OrderService {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${configuration().paystack.publicKey}`,
+        Authorization: `Bearer ${configuration().paystack.secretKey}`,
       },
     };
 

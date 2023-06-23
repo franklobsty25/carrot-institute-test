@@ -14,7 +14,10 @@ export class MenuPutToRequestGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const { params } = request;
 
-    const menu: MenuDocument = await this.menuModel.findById(params.menuId);
+    const menu: MenuDocument = await this.menuModel.findOne({
+      _id: params.menuId,
+      softDelete: false,
+    });
 
     request.__menu = menu;
 

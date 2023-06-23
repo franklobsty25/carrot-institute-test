@@ -21,9 +21,10 @@ export class AuthService {
   ) {}
 
   async signup(createUserDTO: CreateUserDTO): Promise<any> {
-    const { password, confirmPassword } = createUserDTO;
+    const { email, password, confirmPassword } = createUserDTO;
 
     if (password === confirmPassword) {
+      createUserDTO.email = email.toLowerCase();
       createUserDTO.password = await HelperService.hash(confirmPassword);
     } else {
       throw new BadRequestException('Password do not match');
@@ -41,7 +42,7 @@ export class AuthService {
 
     const user = await this.userModel
       .findOne({
-        email: email,
+        email: email.toLowerCase(),
         softDelete: false,
       })
       .select(['email', 'password']);

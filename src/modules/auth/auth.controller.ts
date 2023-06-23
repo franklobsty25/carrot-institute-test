@@ -15,16 +15,26 @@ import { LoginDTO } from './dto';
 import { CurrentUser } from '../user/decoretors/current-user.decorator';
 import { UserDocument } from '../user/schema/user.schema';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiOkResponse, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiOkResponse,
+  ApiResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Authenticated user' })
   @ApiBearerAuth('defaultBearerAuth')
-  @ApiOkResponse({description: 'User record found'})
-  @ApiUnauthorizedResponse({description: 'Unauthorized access'})
+  @ApiOkResponse({ description: 'User found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized access' })
   @UseGuards(JwtAuthGuard)
   @Get('/user')
   async currentUser(
@@ -38,9 +48,10 @@ export class AuthController {
     }
   }
 
-  @ApiResponse({status: 201, description: 'Signup successful'})
-  @ApiBadRequestResponse({description: 'Bad request'})
-  @ApiBody({type: CreateUserDTO})
+  @ApiOperation({ summary: 'Sign up as a user' })
+  @ApiResponse({ status: 201, description: 'Signup successful' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
+  @ApiBody({ type: CreateUserDTO })
   @Post('signup')
   async signup(
     @Res() res: Response,
@@ -60,8 +71,9 @@ export class AuthController {
     }
   }
 
-  @ApiResponse({status: 200, description: 'Login successful'})
-  @ApiBadRequestResponse({description: 'Bad request'})
+  @ApiOperation({ summary: 'Login with credentials' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @Post('login')
   async login(@Res() res: Response, @Body() loginDTO: LoginDTO): Promise<any> {
     try {

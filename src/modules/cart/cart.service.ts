@@ -12,7 +12,7 @@ import { CheckoutDTO, FilterCartDTO } from './dto';
 import { UserDocument } from '../user/schema/user.schema';
 import { MenuDocument } from '../menu/schema/menu.schema';
 import * as moment from 'moment';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { OrderService } from '../order/order.service';
 
 @Injectable()
@@ -115,7 +115,7 @@ export class CartService {
     return await this.cartModel.findByIdAndDelete(cart._id);
   }
 
-  @Cron('0 1 * * * *')
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async clearCartAfter30Days(): Promise<void> {
     const carts = await this.cartModel.find({ expires: moment().toDate() });
 

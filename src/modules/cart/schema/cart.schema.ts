@@ -15,7 +15,7 @@ export class Cart {
   @Prop({
     type: SchemaTypes.Date,
     required: true,
-    default: moment().add(1, 'day').toDate(),
+    default: moment().add(30, 'days').toDate(),
   })
   expires: Date;
 

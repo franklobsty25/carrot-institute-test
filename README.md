@@ -35,9 +35,9 @@ $ npm install
 
 $ npm run start
 
-NB: Create a .env file from env-example and environment variables for the project to work properly.
+NB: Create a .env file from env-example and add environment variables for the project to work properly.
 
-Swagger docs after starting the project is at base url /api/docs
+Swagger documentation documenting the project api can be access at server base url /api/docs
 
 
 ```

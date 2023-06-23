@@ -23,11 +23,15 @@ import { CurrentUser } from '../user/decoretors/current-user.decorator';
 import { UserDocument } from '../user/schema/user.schema';
 import {
   GetRestaurantFromParam,
+  RestaurantAccessGuard,
   RestaurantParamGuard,
 } from './decorators/restaurant-param.decorator';
 import { RestaurantDocument } from './schema/restaurant.schema';
 import { RoleGuard } from '../auth/guards/role.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Restaurant')
+@ApiBearerAuth('defaultBearerAuth')
 @Controller('restaurants')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
@@ -54,10 +58,9 @@ export class RestaurantController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @RestaurantParamGuard()
   @Get(':restaurantId')
-  async singleRestaurant(
+  async getRestaurant(
     @Res() res: Response,
     @GetRestaurantFromParam() restaurant: RestaurantDocument,
   ): Promise<void> {
@@ -97,8 +100,7 @@ export class RestaurantController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @RestaurantParamGuard()
+  @RestaurantAccessGuard()
   @Put(':restaurantId/edit')
   async update(
     @Res() res: Response,
@@ -107,7 +109,7 @@ export class RestaurantController {
   ): Promise<void> {
     try {
       const updatedRestaurant = await this.restaurantService.updateRestaurant(
-        restaurant.id,
+        restaurant._id,
         updateRestaurantDTO,
       );
 
@@ -122,17 +124,15 @@ export class RestaurantController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @RestaurantParamGuard()
+  @RestaurantAccessGuard()
   @Delete(':restaurantId/delete')
   async delete(
     @Res() res: Response,
     @GetRestaurantFromParam() restaurant: RestaurantDocument,
   ): Promise<void> {
     try {
-      const deletedRestaurant = await this.restaurantService.softDeleteRestaurant(
-        restaurant.id,
-      );
+      const deletedRestaurant =
+        await this.restaurantService.softDeleteRestaurant(restaurant._id);
 
       ResponseService.json(
         res,

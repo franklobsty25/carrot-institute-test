@@ -12,7 +12,8 @@ import * as mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 import { MenuModule } from './modules/menu/menu.module';
 import { RestaurantModule } from './modules/restaurant/restaurant.module';
 import { TableModule } from './modules/table/table.module';
-import { CommentModule } from './modules/comment/comment.module';
+import { CartModule } from './modules/cart/cart.module';
+import { OrderModule } from './modules/order/order.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { CommentModule } from './modules/comment/comment.module';
     AuthModule,
     RestaurantModule,
     TableModule,
-    CommentModule,
+    CartModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

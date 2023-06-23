@@ -8,6 +8,7 @@ import {
   Put,
   Delete,
   Post,
+  Query,
 } from '@nestjs/common';
 import { TableService } from './table.service';
 import { CreateTableDTO, FilterTableDTO, UpdateTableDTO } from './dto';
@@ -16,20 +17,27 @@ import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   GetTableFromParam,
+  TableAccessGuard,
   TableParamGuard,
-} from './decorators/table-param-decorator';
+} from './decorator/table-param-decorator';
 import { TableDocument } from './schema/table.schema';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { CurrentUser } from '../user/decoretors/current-user.decorator';
 import { UserDocument } from '../user/schema/user.schema';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Table')
+@ApiBearerAuth('defaultBearerAuth')
 @Controller('tables')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('list')
-  async fetch(@Res() res: Response, payload?: FilterTableDTO): Promise<void> {
+  async fetch(
+    @Res() res: Response,
+    @Query() payload: FilterTableDTO,
+  ): Promise<void> {
     try {
       const { docs, ...metadata } = await this.tableService.fetchTables(
         payload,
@@ -47,10 +55,9 @@ export class TableController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @TableParamGuard()
   @Get(':tableId')
-  async singleTable(
+  async getTable(
     @Res() res: Response,
     @GetTableFromParam() table: TableDocument,
   ): Promise<void> {
@@ -89,8 +96,7 @@ export class TableController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @TableParamGuard()
+  @TableAccessGuard()
   @Put(':tableId/edit')
   async update(
     @Res() res: Response,
@@ -99,7 +105,7 @@ export class TableController {
   ): Promise<void> {
     try {
       const updatedTable = await this.tableService.updateTable(
-        table.id,
+        table._id,
         updateTableDTO,
       );
 
@@ -114,13 +120,14 @@ export class TableController {
     }
   }
 
+  @TableAccessGuard()
   @Delete(':tableId/delete')
   async delete(
     @Res() res: Response,
     @GetTableFromParam() table: TableDocument,
   ): Promise<void> {
     try {
-      const deleteTable = await this.tableService.softDeleteTable(table.id);
+      const deleteTable = await this.tableService.softDeleteTable(table._id);
 
       ResponseService.json(
         res,

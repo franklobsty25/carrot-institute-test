@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 
 @Injectable()
-export class CommentNotFoundGuard implements CanActivate {
+export class OrderNotFoundGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const { __comment } = context.switchToHttp().getRequest();
+    const { __order } = context.switchToHttp().getRequest();
 
-    if (!__comment) throw new NotFoundException('Comment does not exist');
+    if (!__order) throw new NotFoundException('Order does not exist');
 
     return true;
   }

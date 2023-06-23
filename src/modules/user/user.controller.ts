@@ -20,16 +20,27 @@ import {
   GetUserFromParam,
   UserParamGuard,
 } from './decoretors/user-param.decorator';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
+@ApiTags('User')
+@ApiBearerAuth('defaultBearerAuth')
+@ApiUnauthorizedResponse({ description: 'Unauthorized access' })
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiOkResponse({ description: 'User records found' })
   @UseGuards(JwtAuthGuard)
   @Get('list')
-  async listUsers(@Res() res: Response) {
+  async listUsers(@Res() res: Response, @Query() filter: FilterUserDTO) {
     try {
-      const { docs, ...metadata } = await this.userService.fetchUsers();
+      const { docs, ...metadata } = await this.userService.fetchUsers(filter);
 
       ResponseService.json(
         res,
@@ -43,6 +54,7 @@ export class UserController {
     }
   }
 
+  @ApiOkResponse({ description: 'User record edit' })
   @UseGuards(JwtAuthGuard)
   @Put('edit')
   async update(
@@ -51,7 +63,10 @@ export class UserController {
     @Body() updateDTO: UpdateUserDTO,
   ): Promise<void> {
     try {
-      const updatedUser = await this.userService.updateUser(user.id, updateDTO);
+      const updatedUser = await this.userService.updateUser(
+        user._id,
+        updateDTO,
+      );
 
       ResponseService.json(
         res,
@@ -64,6 +79,7 @@ export class UserController {
     }
   }
 
+  @ApiOkResponse({ description: 'User role switched' })
   @UseGuards(JwtAuthGuard)
   @Put('switch/role')
   async becomeASellerOrBuyer(
@@ -85,6 +101,7 @@ export class UserController {
     }
   }
 
+  @ApiOkResponse({ description: 'User record deleted' })
   @UseGuards(JwtAuthGuard)
   @UserParamGuard()
   @Delete(':userId/delete')
@@ -93,7 +110,7 @@ export class UserController {
     @GetUserFromParam() user: UserDocument,
   ): Promise<void> {
     try {
-      const deletedUser = await this.userService.softDeleteUser(user.id);
+      const deletedUser = await this.userService.softDeleteUser(user._id);
 
       ResponseService.json(
         res,

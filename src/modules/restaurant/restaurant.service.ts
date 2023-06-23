@@ -61,14 +61,10 @@ export class RestaurantService {
     user: UserDocument,
     createRestaurantDTO: CreateRestaurantDTO,
   ): Promise<RestaurantDocument> {
-    const [restaurant, queryUser] = await Promise.all([
-      this.restaurantModel.create(createRestaurantDTO),
-      this.userMOdel.findById(user.id),
-    ]);
+    const restaurant = await this.restaurantModel.create(createRestaurantDTO);
+    user.restaurant = restaurant;
 
-    queryUser.restaurant = restaurant;
-
-    await queryUser.save();
+    await user.save();
 
     return restaurant;
   }

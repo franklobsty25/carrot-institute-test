@@ -59,7 +59,7 @@ export class AuthService {
   }
 
   async signAuthPayload(user: UserDocument) {
-    return this.jwtService.sign({ id: user.id, email: user.email });
+    return this.jwtService.sign({ id: user._id, email: user.email });
   }
 
   async validateUser(email: string, password: string): Promise<any> {

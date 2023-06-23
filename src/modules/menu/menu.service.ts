@@ -1,13 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { COMMENT, MENU, RESTAURANT } from 'src/common/constants/schemas';
+import { MENU, RESTAURANT } from 'src/common/constants/schemas';
 import { MenuDocument } from './schema/menu.schema';
 import { FilterQuery, Model, PaginateModel, PaginateResult } from 'mongoose';
 import { CreateMenuDTO, FilterMenuDTO, UpdateMenuDTO } from './dto';
 import { UserDocument } from '../user/schema/user.schema';
 import { RestaurantDocument } from '../restaurant/schema/restaurant.schema';
-import { CreateCommentDTO, FilterCommentDTO } from '../comment/dto';
-import { CommentDocument } from '../comment/schema/comment.schema';
 
 @Injectable()
 export class MenuService {
@@ -15,7 +13,6 @@ export class MenuService {
     @InjectModel(MENU) private readonly menuModel: PaginateModel<MenuDocument>,
     @InjectModel(RESTAURANT)
     private readonly restaurantModel: Model<RestaurantDocument>,
-    @InjectModel(COMMENT) private readonly commentModel: Model<CommentDocument>,
   ) {}
 
   async fetchMenus(
@@ -86,33 +83,4 @@ export class MenuService {
     );
   }
 
-  async addCommentToMenu(menu: MenuDocument, payload: CreateCommentDTO) {
-    const [currentMenu, comment] = await Promise.all([
-      this.menuModel.findOne({ _id: menu._id, softDelete: false }),
-      this.commentModel.create(payload),
-    ]);
-
-    currentMenu.comments.push(comment);
-
-    await currentMenu.save();
-  }
-
-  async fetchMenuComments(
-    menu: MenuDocument,
-    filter?: FilterMenuDTO,
-  ): Promise<PaginateResult<MenuDocument>> {
-    const { page = 1, limit = 10 } = filter;
-
-    const query: FilterQuery<MenuDocument> = {
-      _id: menu._id,
-      softDelete: false,
-    };
-
-    return await this.menuModel.paginate(query, {
-      page,
-      limit,
-      sort: { name: -1 },
-      populate: [{ path: 'comments' }],
-    });
-  }
 }

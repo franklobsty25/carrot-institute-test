@@ -3,7 +3,7 @@ import { UserDocument } from './schema/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { USER } from 'src/common/constants/schemas';
 import { FilterQuery, PaginateModel, PaginateResult } from 'mongoose';
-import { FilterUserDTO, RoleDTO, UpdateUserDTO } from './dto';
+import { FilterUserDTO, UpdateUserDTO } from './dto';
 import { HelperService } from 'src/common/helpers/helper.service';
 import { isEmpty } from 'lodash';
 
@@ -81,7 +81,7 @@ export class UserService {
 
   async sellerOrBuyer(user: UserDocument, role: string) {
     return await this.userModel.findByIdAndUpdate(
-      user.id,
+      user._id,
       { $set: { role } },
       { new: true },
     );

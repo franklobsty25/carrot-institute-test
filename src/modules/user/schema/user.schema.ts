@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, SchemaTypes } from 'mongoose';
-import { Role } from 'src/common/constants/schemas';
+import mongoose, { Document, SchemaTypes } from 'mongoose';
+import { RESTAURANT, RoleEnum } from 'src/common/constants/schemas';
 import { RestaurantDocument } from 'src/modules/restaurant/schema/restaurant.schema';
 
 export type UserDocument = User & Document;
@@ -37,11 +37,11 @@ export class User {
   })
   email: string;
 
-  @Prop({ type: SchemaTypes.String, trim: true, required: false })
-  phoneNumber?: string;
+  @Prop({ type: SchemaTypes.String, trim: true, required: true })
+  phoneNumber: string;
 
-  @Prop({ type: SchemaTypes.String, trim: true, required: false })
-  address?: string;
+  @Prop({ type: SchemaTypes.String, trim: true, required: true })
+  address: string;
 
   @Prop({
     type: SchemaTypes.String,
@@ -53,15 +53,17 @@ export class User {
   @Prop({
     type: SchemaTypes.String,
     required: true,
-    default: Role.Buyer,
+    default: RoleEnum.Buyer,
   })
   role: string;
 
   @Prop({ type: SchemaTypes.Boolean, required: true, default: false })
   softDelete: boolean;
 
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'Restaurant' })
+  // User has restaurant
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: RESTAURANT })
   restaurant: RestaurantDocument;
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

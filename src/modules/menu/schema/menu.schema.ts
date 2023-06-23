@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, SchemaTypes } from 'mongoose';
-import { COMMENT, RESTAURANT } from 'src/common/constants/schemas';
-import { CommentDocument } from 'src/modules/comment/schema/comment.schema';
+import { RESTAURANT } from 'src/common/constants/schemas';
 import { RestaurantDocument } from 'src/modules/restaurant/schema/restaurant.schema';
 
 export type MenuDocument = Menu & Document;
@@ -41,10 +40,6 @@ export class Menu {
   // A menu belongs to a restaurant
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: RESTAURANT })
   restaurant: RestaurantDocument;
-
-  // Comments belongs to menu
-  @Prop({ type: [{ type: mongoose.SchemaTypes.ObjectId, ref: COMMENT }] })
-  comments: CommentDocument[];
 }
 
 export const MenuSchema = SchemaFactory.createForClass(Menu);

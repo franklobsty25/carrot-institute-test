@@ -19,17 +19,14 @@ import { CurrentUser } from '../user/decoretors/current-user.decorator';
 import { UserDocument } from '../user/schema/user.schema';
 import {
   GetMenuFromParam,
-  MenuParamGuard,
-} from './decorators/menu-param.decorator';
+  MenuAccessGuard,
+} from './decorator/menu-access-param.decorator';
 import { MenuDocument } from './schema/menu.schema';
 import { RoleGuard } from '../auth/guards/role.guard';
-import { CreateCommentDTO, FilterCommentDTO } from '../comment/dto';
-import {
-  CommentParamGuard,
-  GetCommentFromParam,
-} from '../comment/decorators/comment-param.decorator';
-import { CommentDocument } from '../comment/schema/comment.schema';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Menu')
+@ApiBearerAuth('defaultBearerAuth')
 @Controller('menus')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
@@ -55,9 +52,9 @@ export class MenuController {
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @MenuParamGuard()
+  @MenuAccessGuard()
   @Get(':menuId')
-  async singleMenu(
+  async getMenu(
     @Res() res: Response,
     @GetMenuFromParam() menu: MenuDocument,
   ): Promise<void> {
@@ -67,53 +64,6 @@ export class MenuController {
         HttpStatus.OK,
         'Menu item found successfully',
         menu,
-      );
-    } catch (error) {
-      ResponseService.json(res, error);
-    }
-  }
-
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @MenuParamGuard()
-  @Get(':menuId/comments')
-  async fetchMenuComments(
-    @Res() res: Response,
-    @GetMenuFromParam() menu: MenuDocument,
-    @Query() payload: FilterMenuDTO,
-  ): Promise<void> {
-    try {
-      const { docs, ...metadata } = await this.menuService.fetchMenuComments(
-        menu,
-        payload,
-      );
-
-      ResponseService.json(
-        res,
-        HttpStatus.OK,
-        'Menu with comments fetched successfully',
-        docs,
-        metadata,
-      );
-    } catch (error) {
-      ResponseService.json(res, error);
-    }
-  }
-
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @MenuParamGuard()
-  @CommentParamGuard()
-  @Get(':menuId/comments/:commentId')
-  async fetchMenuComment(
-    @Res() res: Response,
-    @GetMenuFromParam() menu: MenuDocument,
-    @GetCommentFromParam() comment: CommentDocument,
-  ): Promise<void> {
-    try {
-      ResponseService.json(
-        res,
-        HttpStatus.OK,
-        'Menu with comment found successfully',
-        comment,
       );
     } catch (error) {
       ResponseService.json(res, error);
@@ -142,7 +92,7 @@ export class MenuController {
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @MenuParamGuard()
+  @MenuAccessGuard()
   @Put(':menuId/edit')
   async update(
     @Res() res: Response,
@@ -151,7 +101,7 @@ export class MenuController {
   ): Promise<void> {
     try {
       const updatedMenu = await this.menuService.updateMenu(
-        menu.id,
+        menu._id,
         updateMenuDTO,
       );
 
@@ -167,31 +117,14 @@ export class MenuController {
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @MenuParamGuard()
-  @Put(':menuId/comment')
-  async addCommentToMenu(
-    @Res() res: Response,
-    @GetMenuFromParam() menu: MenuDocument,
-    @Body() payload: CreateCommentDTO,
-  ) {
-    try {
-      await this.menuService.addCommentToMenu(menu, payload);
-
-      ResponseService.json(res, HttpStatus.OK, 'Comment added to menu');
-    } catch (error) {
-      ResponseService.json(res, error);
-    }
-  }
-
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @MenuParamGuard()
+  @MenuAccessGuard()
   @Delete(':menuId/delete')
   async delete(
     @Res() res: Response,
     @GetMenuFromParam() menu: MenuDocument,
   ): Promise<void> {
     try {
-      const deletedMenu = await this.menuService.softDeleteMenu(menu.id);
+      const deletedMenu = await this.menuService.softDeleteMenu(menu._id);
 
       ResponseService.json(
         res,

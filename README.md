@@ -39,6 +39,8 @@ NB: Create a .env file from env-example and add environment variables for the pr
 
 Swagger documentation documenting the project api can be access at server base url /api/docs
 
+Live Test: https://food-delivery-platform-api.up.railway.app/api/docs
+
 
 ```
 

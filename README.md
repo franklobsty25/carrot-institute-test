@@ -38,11 +38,9 @@ $ npm run start
 NB: Create a .env file from env-example and add environment variables for the project to work properly.
 
 Swagger documentation documenting the project api can be access at server base url /api/docs
-
-Live Test: https://food-delivery-platform-api.up.railway.app/api/docs
-
-
 ```
+
+[Food Delivery Platform API Documentation](https://food-delivery-platform-api.up.railway.app/api/docs)
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 

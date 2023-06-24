@@ -17,7 +17,7 @@ export interface Configuration {
 export default (): Configuration => ({
   env: process.env.NODE_ENV as Environment,
   port: parseInt(process.env.PORT),
-  database: { url: process.env.DATABASE_URL },
+  database: { url: process.env.MONGODB_URL },
   jwt: { secret: process.env.JWT_SECRET, expiresIn: process.env.EXPIRES_IN },
   paystack: {
     secretKey: process.env.PAYSTACK_SECRET_KEY,
